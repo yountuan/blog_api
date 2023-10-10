@@ -1,8 +1,8 @@
 from rest_framework import serializers
 from .models import Category, Tag, Post
+from review.serializers import CommentSerializer
+from django.db.models import Avg
 
-
-serializers.ModelSerializer
 
 # class CategorySerializer(serializers.Serializer):
 #     title = serializers.CharField(
@@ -19,18 +19,44 @@ class CategorySerializer(serializers.ModelSerializer):
         model = Category
         fields = '__all__'
 
+
 class TagSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tag
         fields = '__all__'
 
+
 class PostSerializer(serializers.ModelSerializer):
+    author = serializers.ReadOnlyField(source='author.name')
+
     class Meta:
         model = Post
         fields = '__all__'
+
+    def create(self, validated_data):
+        user = self.context.get('request').user
+        tags = validated_data.pop('tags', [])
+        post = self.Meta.model.objects.create(author=user, **validated_data)
+        post.tags.add(*tags)
+        return post
+
+    # def to_representation(self, instance):
+    #     representation = super().to_representation(instance)
+    #     representation['comment'] = CommentSerializer(instance.comments.all(), many=True).data
+    #     return representation
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation['rating'] = instance.ratings.aggregate(Avg('rating'))['rating_avg']
+        representation['comment'] = CommentSerializer(instance.comments.all(), many=True).data
+        representation['likes'] = instance.likes.count()
+        return representation
+
     
 class PostListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Post
         fields = ('title', 'image', 'id')
+
+
 
