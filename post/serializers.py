@@ -47,7 +47,7 @@ class PostSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         representation = super().to_representation(instance)
-        representation['rating'] = instance.ratings.aggregate(Avg('rating'))['rating_avg']
+        representation['rating'] = instance.ratings.aggregate(Avg('rating'))['rating__avg']
         representation['comment'] = CommentSerializer(instance.comments.all(), many=True).data
         representation['likes'] = instance.likes.count()
         return representation

@@ -6,7 +6,6 @@ router = DefaultRouter()
 router.register('posts', PostViewSet)
 
 
-
 urlpatterns = [
     path('categories/', CategoryView.as_view()),
     path('categories/<slug:pk>', CategoryDetailView.as_view()),
