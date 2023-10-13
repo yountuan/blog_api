@@ -1,7 +1,7 @@
 from rest_framework.decorators import action
 from rest_framework.views import APIView
 from rest_framework import generics, viewsets
-from rest_framework.permissions import IsAdminUser, AllowAny
+from rest_framework.permissions import IsAdminUser, AllowAny, IsAuthenticated
 from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.pagination import PageNumberPagination
 
@@ -123,3 +123,4 @@ class PostViewSet(viewsets.ModelViewSet):
         elif not rating and request.method == 'POST':
             serializer.create(serializer.validated_data)
         return Response(serializer.data)
+
